@@ -1,0 +1,365 @@
+---
+title: Student Lifestyle Analysis
+author: Tomasz Klimanek
+date: today
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    background: "#FFE8CC"
+    code-fold: true
+    number-sections: true
+backgroundcolor: "#FFE8CC"
+bibliography: bibliography.bib
+self-contained: true
+---
+
+# Introduction
+
+This project explores the relationship between student lifestyle factors and academic performance, as measured by GPA. It examines how habits such as *study hours*, *sleep*, and *physical activity* correlate with **stress levels** and **academic outcomes**.
+
+## Short Literature Review
+
+A balanced lifestyle, including sufficient sleep and physical activity, is often associated with reduced stress and better cognitive performance. However, excessive academic or social commitments can lead to burnout and lower academic results.
+The economic results are measured widely with the use of ***Cumulative Grade Point Average*** (CGPA concept).
+The definition and computation of CGPA is explained for instance in the ST. TERESA’S COLLEGE, ERNAKULAM publication [-@averagecomputation] .
+
+
+However, the study by @la2021healthy shows no correlation between academic success and perceived stress as well as with the amount of sleep hours.
+Other studies, such as @getaneh2020educational, illustrate that academic performance of students is positively and significantly related with lifestyle variables like self-concept, emotional state and goal orientation.
+
+## Hypotheses and Goals
+
+1. Increased study hours are associated with  higher values of CGPA.
+
+2. More sleep reduce stress levels.
+
+# Data
+
+This dataset, titled *"Daily Lifestyle and Academic Performance of Students"*, were uploaded from [Kaggle platform](https://www.kaggle.com/dsv/9876359) and contains data from 2,000 students collected via a Google Form survey. It includes information on study hours, extracurricular activities, sleep, socializing, physical activity, stress levels, and CGPA. The data covers an academic year from August 2023 to May 2024 and reflects student lifestyles primarily from India. This dataset can help analyze the impact of daily habits on academic performance and student well-being [see @sumit_kumar_2024].
+
+
+```{r,echo=FALSE}
+students_lifestyle_data <- read.csv("../data/student_lifestyle_dataset.csv")
+```
+
+## Variables to Analyze
+
+
+- **Independent variables**: study hours per day (numerical), sleep hours per day (numerical).
+- **Dependent variables**: GPA (numerical) and Stress Level (categorical).
+
+## Population and Unit of Interest
+
+The dataset represents students, with each entry corresponding to an individual student's lifestyle and performance metrics.
+
+# Methods
+
+This project uses basic descriptive statistical methods to analyze the data:
+
+1. **Mean**: 
+$$
+\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i
+$$
+where \(x_i\) represents the values of the variable and \(n\) is the number of observations.
+
+
+2. **Median**: 
+
+$$
+\text{Median} =
+\begin{cases}
+x_{\frac{n+1}{2}} & \text{if } n \text{ is odd}, \\\\
+\frac{x_{\frac{n}{2}} + x_{\frac{n}{2}+1}}{2} & \text{if } n \text{ is even}.
+\end{cases}
+$$
+
+
+3. **Standard Deviation**:
+
+$$
+s = \sqrt{\frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})^2}
+$$
+
+4. **Coefficient of Variation**: 
+
+
+$$
+CV = \frac{s}{\bar{x}}*100
+$$
+
+Additionally, the project uses pearson coefficient of correlation, simple classification techniques and visualizations to explore relationships between variables.
+
+# Results
+
+## Libraries used
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(kableExtra)
+library(ggplot2)
+```
+
+
+## Summary Statistics
+
+::: {.panel-tabset}
+
+## Study hours
+The basic statistics for the study hours per day are presented in @tbl-study_hours_stats.
+
+```{r}
+#| label: tbl-study_hours_stats
+study_hours_stats <- students_lifestyle_data %>%
+  summarise(
+    Mean = round(mean(Study_Hours_Per_Day, na.rm = TRUE),1),
+    Median = round(median(Study_Hours_Per_Day, na.rm = TRUE),1),
+    SD = round(sd(Study_Hours_Per_Day, na.rm = TRUE),1),
+    CV = round(sd(Study_Hours_Per_Day, na.rm = TRUE) / mean(Study_Hours_Per_Day, na.rm = TRUE) * 100,1)
+  )
+
+study_hours_stats %>%
+  kable("html", caption = "Descriptive Statistics for Study Hours Per Day") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The distribution of study hours per day is visualized in @fig-study_hours_distribution.
+
+```{r}
+#| label: fig-study_hours_distribution
+ggplot(students_lifestyle_data, aes(x = Study_Hours_Per_Day)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribution of Study Hours Per Day",
+    x = "Study Hours Per Day",
+    y = "Number of students"
+  ) +
+  theme_minimal()
+```
+
+## Sleep hours
+The basic statistics for the sleep hours per day are presented in @tbl-sleep_hours_stats.
+
+```{r}
+#| label: tbl-sleep_hours_stats
+sleep_hours_stats <- students_lifestyle_data %>%
+  summarise(
+    Mean = round(mean(Sleep_Hours_Per_Day, na.rm = TRUE),1),
+    Median = round(median(Sleep_Hours_Per_Day, na.rm = TRUE),1),
+    SD = round(sd(Sleep_Hours_Per_Day, na.rm = TRUE),1),
+    CV = round(sd(Sleep_Hours_Per_Day, na.rm = TRUE) / mean(Sleep_Hours_Per_Day, na.rm = TRUE) * 100,1)
+  )
+
+sleep_hours_stats %>%
+  kable("html", caption = "Descriptive Statistics for Sleep Hours Per Day") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The distribution of study hours per day is visualized in @fig-sleep_hours_distribution.
+
+```{r}
+#| label: fig-sleep_hours_distribution
+ggplot(students_lifestyle_data, aes(x = Sleep_Hours_Per_Day)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribution of Sleep Hours Per Day",
+    x = "Sleep Hours Per Day",
+    y = "Number of students"
+  ) +
+  theme_minimal()
+```
+
+## Stress Level
+
+The distribution of stress level is presented in @tbl-stress_level_percentages.
+
+```{r}
+#| label: tbl-stress_level_percentages
+stress_level_percentages <- students_lifestyle_data %>%
+  count(Stress_Level) %>%
+  mutate(Percentage = n / sum(n) * 100)
+
+stress_level_percentages %>%
+  rename(`Stress Level` = Stress_Level, Count = n) %>%
+  kable("html", caption = "Stress Level Percentages") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+
+## GPA
+The basic statistics for GPA are presented in @tbl-gpa_stats.
+
+```{r}
+#| label: tbl-gpa_stats
+gpa_stats <- students_lifestyle_data %>%
+  summarise(
+    Mean = round(mean(GPA, na.rm = TRUE),1),
+    Median = round(median(GPA, na.rm = TRUE),1),
+    SD = round(sd(GPA, na.rm = TRUE),1),
+    CV = round(sd(GPA, na.rm = TRUE) / mean(GPA, na.rm = TRUE) * 100,1)
+  )
+
+gpa_stats %>%
+  kable("html", caption = "Descriptive Statistics for GPA") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The distribution of GPA is visualized in @fig-gpa_distribution.
+
+```{r}
+#| label: fig-gpa_distribution
+ggplot(students_lifestyle_data, aes(x = GPA)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribution of GPA",
+    x = "GPA",
+    y = "Number of students"
+  ) +
+  theme_minimal()
+```
+
+:::
+
+
+## Stress by sleep and study hours per day
+To analyze the relationship between stress levels and sleep hours, we create a boxplot visualization in @fig-stress_sleep_boxplot.
+
+
+```{r}
+#| label: fig-stress_sleep_boxplot
+#| caption: Boxplot of Stress Level by Sleep Hours
+
+ggplot(students_lifestyle_data, aes(x = factor(Stress_Level), y = Sleep_Hours_Per_Day)) +
+  geom_boxplot(fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Boxplot of Stress Level by Sleep Hours",
+    x = "Stress Level",
+    y = "Sleep Hours Per Day"
+  ) +
+  theme_minimal()
+
+```
+
+Additionally, we analyze the relationship between stress levels and sleep hours by presenting basic statistics for different stress levels in @tbl-stress_sleep_stats.
+
+```{r}
+#| label: tbl-stress_sleep_stats
+#| caption: Descriptive Statistics for Sleep Hours Grouped by Stress Level
+
+study_sleep_stats_by_stress <- students_lifestyle_data %>%
+  group_by(Stress_Level) %>%
+  summarise(
+    Mean_Sleep_Hours = round(mean(Sleep_Hours_Per_Day, na.rm = TRUE), 1),
+    Median_Sleep_Hours = round(median(Sleep_Hours_Per_Day, na.rm = TRUE), 1),
+    SD_Sleep_Hours = round(sd(Sleep_Hours_Per_Day, na.rm = TRUE), 1),
+    CV_Sleep_Hours = round(sd(Sleep_Hours_Per_Day, na.rm = TRUE) / mean(Sleep_Hours_Per_Day, na.rm = TRUE) * 100, 1)
+  ) 
+
+study_sleep_stats_by_stress %>%
+  kable("html", caption = "Descriptive Statistics for Sleep Hours Grouped by Stress Level") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+
+To analyze the relationship between stress levels and study hours, we create a boxplot visualization in @fig-stress_study_boxplot.
+
+```{r}
+#| label: fig-stress_study_boxplot
+#| caption: Boxplot of Stress Level by Study Hours
+
+ggplot(students_lifestyle_data, aes(x = factor(Stress_Level), y = Study_Hours_Per_Day)) +
+  geom_boxplot(fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Boxplot of Stress Level by Study Hours",
+    x = "Stress Level",
+    y = "Study Hours Per Day"
+  ) +
+  theme_minimal()
+```
+
+Additionally, we analyze the relationship between stress levels and study hours by presenting basic statistics for different stress levels in @tbl-stress_study_stats.
+
+```{r}
+#| label: tbl-stress_study_stats
+#| caption: Descriptive Statistics for Study Hours Grouped by Stress Level
+
+study_hours_stats_by_stress <- students_lifestyle_data %>%
+  group_by(Stress_Level) %>%
+  summarise(
+    Mean_Study_Hours = round(mean(Study_Hours_Per_Day, na.rm = TRUE), 1),
+    Median_Study_Hours = round(median(Study_Hours_Per_Day, na.rm = TRUE), 1),
+    SD_Study_Hours = round(sd(Study_Hours_Per_Day, na.rm = TRUE), 1),
+    CV_Study_Hours = round(sd(Study_Hours_Per_Day, na.rm = TRUE) / mean(Study_Hours_Per_Day, na.rm = TRUE) * 100, 1)
+  )
+```
+
+
+## GPA by sleep and study hours
+
+To analyze the relationship between GPA and sleep hours, we create a scatter plot visualization in @fig-gpa_sleep_scatter.
+
+```{r}
+#| label: fig-gpa_sleep_scatter
+#| caption: Scatter Plot of GPA by Sleep Hours
+
+ggplot(students_lifestyle_data, aes(x = Sleep_Hours_Per_Day, y = GPA)) +
+  geom_point(color = "skyblue", alpha = 0.7) +
+  labs(
+    title = "Scatter Plot of GPA by Sleep Hours",
+    x = "Sleep Hours Per Day",
+    y = "GPA"
+  ) +
+  theme_minimal()
+```
+
+
+```{r}
+gpa_sleep_correlation <- cor(students_lifestyle_data$GPA, students_lifestyle_data$Sleep_Hours_Per_Day, use = "complete.obs")
+
+```
+The pearson correlation coefficient between GPA and sleep hours is equal to `r round(gpa_sleep_correlation,3)`. The correlation is close to zero and could be interpreted as there is no relation between GPA and sleep hours.
+
+
+
+To analyze the relationship between GPA and study hours, we create a scatter plot visualization in @fig-gpa_study_scatter.
+
+```{r}
+#| label: fig-gpa_study_scatter
+#| caption: Scatter Plot of GPA by Study Hours
+
+ggplot(students_lifestyle_data, aes(x = Study_Hours_Per_Day, y = GPA)) +
+  geom_point(color = "skyblue", alpha = 0.7) +
+  labs(
+    title = "Scatter Plot of GPA by Study Hours",
+    x = "Study Hours Per Day",
+    y = "GPA"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+gpa_study_correlation <- cor(students_lifestyle_data$GPA, students_lifestyle_data$Study_Hours_Per_Day, use = "complete.obs")
+```
+
+The pearson correlation coefficient between GPA and study hours is equal to `r round(gpa_study_correlation,3)`. The correlation is close to +1. It could be interpreted as there is a strong positive relation between GPA and study hours. It means that the more hours students spend on studying, the higher GPA they achieve.
+
+
+# Summary
+
+This report investigates the interplay between student lifestyle factors and academic performance, focusing on cumulative grade point average (GPA) as the primary outcome. It examines how variables such as study and sleep hours, correlate with stress levels and academic results. 
+
+The study centers around two key hypotheses: that increased study hours are positively associated with higher GPAs, and that more sleep correlate with reduced stress levels.
+
+The research employs basic descriptive statistics to explore relationships between variables. Key statistical measures, including mean, median, standard deviation (SD), and coefficient of variation (CV), are calculated for study hours, sleep hours, and GPA. Visualizations, such as histograms and boxplots, provide insights into the distributions of these variables and their relationships with stress levels. Correlation coefficients, particularly the Pearson coefficient, are used to evaluate the strength and direction of relationships.
+
+The analysis shows a strong positive correlation between study hours and GPA. Students who dedicate more time to studying tend to achieve higher academic outcomes. Summary statistics and visualizations reinforce this relationship.
+
+Sleep Hours: Despite sleep's recognized importance for cognitive function, the report finds no significant correlation between sleep hours and GPA. However, sleep patterns vary across stress levels, with lower stress levels associated with slightly higher average sleep hours.
+
+Stress Levels: Stress emerges as a critical variable influencing both study and sleep behaviors. Boxplots demonstrate variations in study and sleep hours across different stress categories, indicating that stress management could play a pivotal role in optimizing academic performance.
+
+GPA Distribution: GPA data reveal a normal distribution, with higher GPAs associated with increased study hours but unaffected by variations in sleep.
+
+The findings highlight the importance of effective time management, particularly allocating sufficient time for studying. While the relationship between sleep and GPA appears weak.
+
+This analysis underscores the multifaceted nature of student lifestyle and academic success. While increased study hours are strongly linked to higher GPAs, the role of sleep and stress suggests that academic interventions should adopt a holistic approach. 

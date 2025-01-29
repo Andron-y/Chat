@@ -1,0 +1,418 @@
+---
+title: "Analyzing the Impact of Academic Pressure on Student Mental Well-Being"
+author: "Vera Rusakova, Paul Smuts, Andriy Rusnak"
+date: today
+format: 
+  html:
+    toc: true
+    toc-depth: 2
+    background: "#FFE8CC"
+    code-fold: true
+    number-sections: true
+backgroundcolor: azure
+bibliography: bibliography.bib
+self-contained: true
+---
+
+# Introduction
+
+## Project Description
+
+In recent years, the mental health of university students has become a growing concern globally. Among various mental health issues, depression and stress are prevalent conditions affecting students. Academic stress, characterized by high expectations, heavy workloads, frequent examinations, and competitive environments, significantly contributes to student mental health challenges. The transition to higher education introduces new challenges, including the need to manage time effectively, meet academic deadlines, and maintain high academic performance, all of which can contribute to mental distress.
+
+This study aims to analyze the impact of academic stress on student mental health and happiness using a data-driven approach. By examining relevant factors such as academic stress, work-life balance, mental health, and happiness levels, the study seeks to uncover the extent to which academic demands influence students' mental health and happiness. The insights gained from this analysis can guide educational institutions in implementing targeted mental health support services and developing strategies to mitigate academic stress among students.
+
+This project explores the relationship between academic stress, mental health, work-life balance, and happiness levels among students.
+
+## Research Hypotheses and Goals
+
+To explore the relationship between various factors and student mental health and happiness, the following hypotheses and research goals are proposed:
+
+## Hypotheses:
+
+**H1:** Students with better work-life balance experience less academic stress.
+
+**H2:** Lower academic stress leads to better mental health and higher happiness levels.
+
+**H3:** Better mental health reduces the negative effects of academic stress, increasing happiness levels.
+
+## Research Goals:
+
+1. To identify which factors (e.g., academic stress, work-life balance, mental health, happiness levels) are most strongly associated with student mental health and happiness.
+2. To measure the extent to which these factors contribute to mental health and happiness levels among students.
+3. To develop strategies for reducing academic stress and enhancing student mental health and happiness.
+
+## Literature Review
+
+Academic stress has been identified as a key factor affecting students' mental health. Studies have consistently shown that high workloads, academic competition, and fear of failure contribute to stress and depression in university students (Beiter et al., 2015). A survey by the American College Health Association (2020) reported that over 40% of students experienced overwhelming anxiety, and 30% felt depressed due to academic demands.
+
+Research by Pascoe, Hetrick, and Parker (2020) highlights that academic stress is often linked to perfectionism and poor time management, which exacerbate mental health problems. Similarly, Deb, Strodl, and Sun (2015) found that students with high study loads and lower academic performance are more vulnerable to depression. Moreover, involvement in extracurricular activities has been shown to buffer the negative effects of academic stress by providing social support and opportunities for relaxation (Aselton, 2012).
+
+Despite these findings, there is a need for more data-driven studies that quantitatively analyze the relationship between these factors and mental health and happiness. This research aims to fill that gap by applying statistical methods to real-world data, offering deeper insights into how various factors impact student mental health and happiness.
+
+# Data
+
+This dataset, titled *"Happiness Train Dataset"*, was uploaded from [Keggle](https://www.kaggle.com/datasets/israelfiyinfoluwa/student-mental-well-being?select=happiness_train_dataset.csv) and contains data from students collected via a survey. It includes information on academic stress, work-life balance, mental health, and happiness levels. This dataset provides valuable insights into how academic pressures and lifestyle factors influence mental health and happiness among students. It can help analyze the impact of academic and lifestyle factors on students' mental health and well-being.
+
+```{r,echo=FALSE}
+students_happiness_data <- read.csv("happiness_train_dataset.csv")
+
+# Converting necessary columns to numeric
+students_happiness_data$Academic_Stress <- as.numeric(students_happiness_data$Academic_Stress)
+students_happiness_data$Work_Life_Balance <- as.numeric(students_happiness_data$Work_Life_Balance)
+students_happiness_data$Mental_Health <- as.numeric(students_happiness_data$Mental_Health)
+students_happiness_data$Happiness_Level <- as.numeric(students_happiness_data$Happiness_Level)
+```
+
+## Variables to Analyze
+
+**Independent variables**: Academic Stress, Work-Life Balance, Mental Health.
+
+**Dependent variables**: Happiness Level (numeric).
+
+## Population and Unit of Interest
+
+The population consists of university students surveyed to understand the impact of academic stress, social support, financial status, work-life balance, and other factors on mental health and happiness. Each entry represents a single student's responses. The dataset includes variables such as age, gender, year of study, academic stress, and happiness level. The data helps analyze how these factors influence student well-being.
+
+# Methods
+
+This project uses basic descriptive statistical methods to analyze the data:
+
+1. **Mean**: 
+$$
+\bar{x} = \frac{1}{n} \sum_{i=1}^{n} x_i
+$$
+where \(x_i\) represents the values of the variable and \(n\) is the number of observations.
+
+2. **Median**: 
+$$
+\text{Median} =
+\begin{cases}
+x_{\frac{n+1}{2}} & \text{if } n \text{ is odd}, \\\\
+\frac{x_{\frac{n}{2}} + x_{\frac{n}{2}+1}}{2} & \text{if } n \text{ is even}.
+\end{cases}
+$$
+
+3. **Standard Deviation**:
+$$
+s = \sqrt{\frac{1}{n-1} \sum_{i=1}^{n} (x_i - \bar{x})^2}
+$$
+
+4. **Coefficient of Variation**: 
+$$
+CV = \frac{s}{\bar{x}}*100
+$$
+
+5. **Linear Regression**:
+To investigate the relationships between happiness levels and various factors such as academic stress, work-life balance, and mental health, a linear regression model is used. The linear regression equation is given by:
+$$
+Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \beta_3X_3 + \epsilon
+$$
+where:
+- \(Y\) is the dependent variable (Happiness_Level).
+- \(\beta_0\) is the intercept.
+- \(\beta_1, \beta_2, \beta_3\) are the coefficients for the independent variables \(X_1\) (Academic_Stress), \(X_2\) (Work_Life_Balance), and \(X_3\) (Mental_Health), respectively.
+- \(\epsilon\) is the error term.
+
+
+Additionally, the project uses Pearson coefficient of correlation, simple classification techniques, and visualizations to explore relationships between variables.
+
+# Results
+
+## Libraries used
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(psych)
+library(ggplot2)
+library(corrplot)
+library(interactions)
+library(kableExtra)
+```
+
+
+## Summary Statistics
+
+::: {.panel-tabset}
+
+## Academic Stress
+
+The basic statistics for academic stress are presented in @tbl-academic_stress_stats.
+
+```{r}
+#| label: tbl-academic_stress_stats
+academic_stress_stats <- students_happiness_data %>%
+  summarise(
+    Mean = round(mean(Academic_Stress, na.rm = TRUE), 1),
+    Median = round(median(Academic_Stress, na.rm = TRUE), 1),
+    SD = round(sd(Academic_Stress, na.rm = TRUE), 1),
+    CV = round(sd(Academic_Stress, na.rm = TRUE) / mean(Academic_Stress, na.rm = TRUE) * 100, 1)
+  )
+
+academic_stress_stats %>%
+  kable("html", caption = "Descriptive Statistics for Academic Stress") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The distribution of academic stress is visualized in @fig-academic_stress_distribution.
+
+```{r}
+#| label: fig-academic_stress_distribution
+ggplot(students_happiness_data, aes(x = Academic_Stress)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribution of Academic Stress",
+    x = "Academic Stress",
+    y = "Number of students"
+  ) +
+  theme_minimal()
+```
+
+The mean and median of academic stress are both 5, indicating a balanced distribution around the central value. The standard deviation of 2 shows moderate variability in academic stress levels among students. The coefficient of variation (CV) is 38.9%, suggesting a moderate relative variability in academic stress levels. The histogram shows a relatively normal distribution, while the boxplot indicates no significant difference between genders in terms of academic stress.
+
+## Work-Life Balance
+
+The basic statistics for work-life balance are presented in @tbl-work_life_balance_stats.
+
+```{r}
+#| label: tbl-work_life_balance_stats
+work_life_balance_stats <- students_happiness_data %>%
+  summarise(
+    Mean = round(mean(Work_Life_Balance, na.rm = TRUE), 1),
+    Median = round(median(Work_Life_Balance, na.rm = TRUE), 1),
+    SD = round(sd(Work_Life_Balance, na.rm = TRUE), 1),
+    CV = round(sd(Work_Life_Balance, na.rm = TRUE) / mean(Work_Life_Balance, na.rm = TRUE) * 100, 1)
+  )
+
+work_life_balance_stats %>%
+  kable("html", caption = "Descriptive Statistics for Work-Life Balance") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The distribution of work-life balance is visualized in @fig-work_life_balance_distribution.
+
+```{r}
+#| label: fig-work_life_balance_distribution
+ggplot(students_happiness_data, aes(x = Work_Life_Balance)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribution of Work-Life Balance",
+    x = "Work-Life Balance",
+    y = "Number of students"
+  ) +
+  theme_minimal()
+```
+
+The mean and median work-life balance scores are both 5.9, indicating a balanced distribution. The standard deviation is 2, showing moderate variability. The coefficient of variation (CV) is 33.8%, suggesting moderate relative variability in work-life balance scores. The histogram shows a relatively normal distribution, with the boxplot indicating slight variations by the year of study, with first-year students having slightly lower scores.
+
+## Mental Health
+
+The basic statistics for mental health are presented in @tbl-mental_health_stats.
+
+```{r}
+#| label: tbl-mental_health_stats
+mental_health_stats <- students_happiness_data %>%
+  summarise(
+    Mean = round(mean(Mental_Health, na.rm = TRUE), 1),
+    Median = round(median(Mental_Health, na.rm = TRUE), 1),
+    SD = round(sd(Mental_Health, na.rm = TRUE), 1),
+    CV = round(sd(Mental_Health, na.rm = TRUE) / mean(Mental_Health, na.rm = TRUE) * 100, 1)
+  )
+
+mental_health_stats %>%
+  kable("html", caption = "Descriptive Statistics for Mental Health") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The distribution of mental health is visualized in @fig-mental_health_distribution.
+
+```{r}
+#| label: fig-mental_health_distribution
+ggplot(students_happiness_data, aes(x = Mental_Health)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribution of Mental Health",
+    x = "Mental Health",
+    y = "Number of students"
+  ) +
+  theme_minimal()
+```
+
+The mean and median mental health scores are both 7, indicating a balanced distribution around the central value. The standard deviation is 1.5, showing moderate variability. The coefficient of variation (CV) is 21.7%, suggesting relatively low variability compared to the mean. The histogram shows a normal distribution of mental health scores, with the boxplot indicating no significant difference between genders.
+
+## Happiness Level
+
+The basic statistics for happiness level are presented in @tbl-happiness_level_stats.
+
+```{r}
+#| label: tbl-happiness_level_stats
+happiness_level_stats <- students_happiness_data %>%
+  summarise(
+    Mean = round(mean(Happiness_Level, na.rm = TRUE), 1),
+    Median = round(median(Happiness_Level, na.rm = TRUE), 1),
+    SD = round(sd(Happiness_Level, na.rm = TRUE), 1),
+    CV = round(sd(Happiness_Level, na.rm = TRUE) / mean(Happiness_Level, na.rm = TRUE) * 100, 1)
+  )
+
+happiness_level_stats %>%
+  kable("html", caption = "Descriptive Statistics for Happiness Level") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The distribution of happiness level is visualized in @fig-happiness_level_distribution.
+
+```{r}
+#| label: fig-happiness_level_distribution
+ggplot(students_happiness_data, aes(x = Happiness_Level)) +
+  geom_histogram(binwidth = 0.5, fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Distribution of Happiness Level",
+    x = "Happiness Level",
+    y = "Number of students"
+  ) +
+  theme_minimal()
+```
+
+The mean and median happiness levels are both 4.8, indicating a balanced distribution. The standard deviation is 1, showing low variability. The coefficient of variation (CV) is 20.8%, suggesting relatively low variability in happiness levels among students. The histogram shows a normal distribution, with the boxplot indicating slight variations by the year of study, with first-year students having slightly lower happiness levels.
+
+The boxplot of happiness level by year of study is visualized in @fig-happiness_level_year_boxplot.
+
+```{r}
+#| label: fig-happiness_level_year_boxplot
+ggplot(students_happiness_data, aes(x = factor(Year_of_Study), y = Happiness_Level)) +
+  geom_boxplot(fill = "skyblue", color = "black", alpha = 0.7) +
+  labs(
+    title = "Boxplot of Happiness Level by Year of Study",
+    x = "Year of Study",
+    y = "Happiness Level"
+  ) +
+  theme_minimal()
+```
+
+
+The boxplot reveals that happiness levels among students vary by year of study. Generally, 1st-year students tend to have lower median happiness levels, while 3rd-year students exhibit the highest median happiness levels. The variability in happiness levels also increases with each year of study. These findings suggest that students' happiness levels may improve as they progress through their academic journey, but individual experiences can vary widely.
+
+:::
+
+## Academic Stress by Mental Health
+
+The scatter plot of academic stress by mental health is visualized in @fig-academic_stress_mental_health_scatter.
+
+```{r}
+#| label: fig-academic_stress_mental_health_scatter
+ggplot(students_happiness_data, aes(x = Academic_Stress, y = Mental_Health)) +
+  geom_point(color = "skyblue", alpha = 0.7) +
+  labs(
+    title = "Scatter Plot of Academic Stress vs. Mental Health",
+    x = "Academic Stress",
+    y = "Mental Health"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+linear_model_mental_health <- lm(Mental_Health ~ Academic_Stress, data = students_happiness_data)
+summary(linear_model_mental_health) %>%
+  tidy() %>%
+  kable("html", caption = "Summary of Linear Regression Model for Mental Health based on Academic Stress") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+
+The scatter plot and linear regression analysis show a negative relationship between academic stress and mental health. The linear regression model summary indicates a significant negative coefficient for academic stress, suggesting that higher academic stress is associated with lower mental health scores.
+
+## Academic Stress by Happiness Level
+
+The scatter plot of academic stress by happiness level is visualized in @fig-academic_stress_happiness_level_scatter.
+
+```{r}
+#| label: fig-academic_stress_happiness_level_scatter
+ggplot(students_happiness_data, aes(x = Academic_Stress, y = Happiness_Level)) +
+  geom_point(color = "skyblue", alpha = 0.7) +
+  labs(
+    title = "Scatter Plot of Academic Stress vs. Happiness Level",
+    x = "Academic Stress",
+    y = "Happiness Level"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+linear_model_happiness <- lm(Happiness_Level ~ Academic_Stress, data = students_happiness_data)
+summary(linear_model_happiness) %>%
+  tidy() %>%
+  kable("html", caption = "Summary of Linear Regression Model for Happiness Level based on Academic Stress") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+
+The scatter plot and linear regression analysis show a negative relationship between academic stress and happiness level. The linear regression model summary indicates a significant negative coefficient for academic stress, suggesting that higher academic stress is associated with lower happiness levels.
+
+## Work-Life Balance by Happiness Level
+
+The scatter plot of work-life balance by happiness level is visualized in @fig-work_life_balance_happiness_level_scatter.
+
+```{r}
+#| label: fig-work_life_balance_happiness_level_scatter
+ggplot(students_happiness_data, aes(x = Work_Life_Balance, y = Happiness_Level)) +
+  geom_point(color = "skyblue", alpha = 0.7) +
+  labs(
+    title = "Scatter Plot of Work-Life Balance vs. Happiness Level",
+    x = "Work-Life Balance",
+    y = "Happiness Level"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+linear_model_work_life_happiness <- lm(Happiness_Level ~ Work_Life_Balance, data = students_happiness_data)
+summary(linear_model_work_life_happiness) %>%
+  tidy() %>%
+  kable("html", caption = "Summary of Linear Regression Model for Happiness Level based on Work-Life Balance") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+
+The scatter plot and linear regression analysis show a positive relationship between work-life balance and happiness level. The linear regression model summary indicates a significant positive coefficient for work-life balance, suggesting that better work-life balance is associated with higher happiness levels.
+
+## Mental Health by Happiness Level
+
+The scatter plot of mental health by happiness level is visualized in @fig-mental_health_happiness_level_scatter.
+
+```{r}
+#| label: fig-mental_health_happiness_level_scatter
+ggplot(students_happiness_data, aes(x = Mental_Health, y = Happiness_Level)) +
+  geom_point(color = "skyblue", alpha = 0.7) +
+  labs(
+    title = "Scatter Plot of Mental Health vs. Happiness Level",
+    x = "Mental Health",
+    y = "Happiness Level"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+linear_model_mental_health_happiness <- lm(Happiness_Level ~ Mental_Health, data = students_happiness_data)
+summary(linear_model_mental_health_happiness) %>%
+  tidy() %>%
+  kable("html", caption = "Summary of Linear Regression Model for Happiness Level based on Mental Health") %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+
+The scatter plot and linear regression analysis show a positive relationship between mental health and happiness level. The linear regression model summary indicates a significant positive coefficient for mental health, suggesting that better mental health is associated with higher happiness levels.
+
+
+# Summary
+
+This report investigates the interplay between various factors affecting students' well-being and their happiness levels. It examines how variables such as academic stress, work-life balance, and mental health correlate with overall happiness.
+
+The study centers around three key hypotheses: that increased academic stress is negatively associated with happiness levels, that better work-life balance is positively associated with happiness levels, and that better mental health is positively associated with happiness levels.
+
+The research employs basic descriptive statistics to explore relationships between variables. Key statistical measures, including mean, median, standard deviation (SD), and coefficient of variation (CV), are calculated for academic stress, work-life balance, mental health, and happiness levels. Visualizations, such as histograms and boxplot, provide insights into the distributions of these variables and their relationships with happiness. Correlation coefficients, particularly the Pearson coefficient, are used to evaluate the strength and direction of relationships.
+
+The findings highlight the importance of effective stress management and maintaining a good work-life balance to promote better mental health and increase happiness levels. While academic stress negatively impacts happiness, better work-life balance and mental health significantly contribute to higher happiness levels.
+
+This analysis underscores the multifaceted nature of student well-being. While reducing academic stress and improving work-life balance and mental health are strongly linked to higher happiness levels, a holistic approach to student support is essential for optimizing overall well-being.
+
+
